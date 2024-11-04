@@ -19,6 +19,8 @@ public class SimpleFile
     /* CONSTRUCTOR */
     /* ************************************* */
 
+    public SimpleFile() { }
+
     /**
      * Constructor
      * @param absolutePath Absolute file path for example: 'plugins\\Plugin\\others\\settings.yml'
@@ -465,5 +467,39 @@ public class SimpleFile
         }
 
         return false;
+    }
+
+    public boolean findFileToDelete(File fileDirectory, String fileNameToSearch)
+    {
+        File file = new File(fileDirectory, fileNameToSearch);
+
+        if(file.exists())
+        {
+            try
+            {
+                return file.delete();
+            }
+            catch (Exception ignored) { }
+        }
+
+        return false;
+    }
+
+    public void deleteRecursive(File directory) {
+        String[] fileNames = directory.list();
+
+        try {
+            if (fileNames != null) {
+                byte b;
+                int i;
+                String[] arrayOfString;
+                for (i = (arrayOfString = fileNames).length, b = 0; b < i; ) {
+                    String fileName = arrayOfString[b];
+                    deleteRecursive(new File(directory.getPath(), fileName));
+                    b++;
+                }
+            }
+            directory.delete();
+        } catch (Exception ignored) {}
     }
 }

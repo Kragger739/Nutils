@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import static ch.neo.neoChallenge.Main._WORLDSVC;
 import static ch.neo.neoChallenge.Main.plugin;
 
 public class LST implements Listener {
@@ -28,7 +29,11 @@ public class LST implements Listener {
             ItemStack currentItem = e.getCurrentItem();
             if (currentItem != null && currentItem.getType() == Material.RED_STAINED_GLASS_PANE)
             {
-                kickAllPlayers("Worlds are gettin resetted");
+                boolean newWorldsCreated = _WORLDSVC.generateNewWorldsAndDeleteTheOldOnes();
+
+                if(!newWorldsCreated) {
+                    p.sendMessage("§cKonnte keine neue Welt erstellten!");
+                }
             } else if (currentItem != null && currentItem.getType() == Material.CLOCK) {
                 Inventory gui = Bukkit.createInventory(p, 45, "Timer Settings");
 
@@ -46,6 +51,16 @@ public class LST implements Listener {
 
             } else if (currentItem != null && currentItem.getType() == Material.GREEN_STAINED_GLASS_PANE){
                 timer.setRunning(true);
+                p.sendMessage("§a§llDer Timer wurde gestartet");
+            } else if (currentItem != null && currentItem.getType() == Material.ORANGE_STAINED_GLASS_PANE) {
+                if(timer.isRunning()){
+                    p.sendMessage("§c§lDer Timer wurde Pausiert");
+                    timer.setRunning(false);
+                }
+            } else if (currentItem != null && currentItem.getType() == Material.PURPLE_STAINED_GLASS_PANE) {
+                p.sendMessage("timer");
+                timer.setRunning(true);
+
             }
         }
     }

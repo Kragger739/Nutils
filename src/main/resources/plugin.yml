@@ -4,7 +4,6 @@ main: ch.neo.neoChallenge.Main
 api-version: '1.21'
 authors: [ Neo ]
 website: Chatrubate.com/sun_shiine
-load: STARTUP
 
 commands:
   settings:
