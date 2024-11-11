@@ -5,6 +5,8 @@ import ch.neo.neoChallenge.LST.LST;
 import ch.neo.neoChallenge.SVC.Timer;
 import ch.neo.neoChallenge.SVC.WorldSVC;
 
+import com.onarandombox.MultiverseCore.MultiverseCore;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 

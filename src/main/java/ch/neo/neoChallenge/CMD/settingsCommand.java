@@ -1,6 +1,7 @@
 package ch.neo.neoChallenge.CMD;
 
 import ch.neo.neoChallenge.SVC.ItemService;
+import ch.neo.neoChallenge.SVC.SimpleFile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -13,11 +14,33 @@ public class settingsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
+        Player p =(Player)sender;
         if (command.getName().equalsIgnoreCase("settings"))
         {
-            Player p =(Player)sender;
-            openGui(p);
-        }
+
+        }if(args.length == 2)
+        {
+            String time = args[0];
+            if(time.equalsIgnoreCase("time")){
+                SimpleFile settingsFile = new SimpleFile("plugins//Nutils//time.yml");
+                String trialTime = args[1];
+
+                settingsFile.of_getSetInt("time", 18000);
+
+                settingsFile.of_save("settings");
+                /*
+                if(settingsFile.of_fileExists()){
+
+
+                }else{
+                    p.sendMessage("§6lSettings File not found!");
+                    settingsFile.of_getSetInt("time", 18000);
+                }*/
+            }
+    } else if (args.length == 0) {
+        openGui(p);
+
+    }
         return false;
     }
 

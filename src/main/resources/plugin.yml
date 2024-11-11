@@ -3,7 +3,7 @@ version: '0.1'
 main: ch.neo.neoChallenge.Main
 api-version: '1.21'
 authors: [ Neo ]
-website: Chatrubate.com/sun_shiine
+website: Chaturbate.com/sun_shiine
 
 commands:
   settings:
