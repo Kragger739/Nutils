@@ -1,20 +1,18 @@
 package ch.neo.neoChallenge.SVC;
 
 import ch.neo.neoChallenge.Main;
-import com.onarandombox.MultiverseCore.MultiverseCore;
-import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import org.bukkit.*;
 
 import java.io.File;
 import java.util.Random;
 
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+
 
 public class WorldSVC
 {
-    MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
-    MVWorldManager worldManager = core.getMVWorldManager();
+    //MultiverseCore core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
+    //MVWorldManager worldManager = core.getMVWorldManager();
     /* ************************************* */
     /* CONSTRUCTOR */
     /* ************************************* */
@@ -33,16 +31,6 @@ public class WorldSVC
             System.out.println("Error while creating the new world: " + worldName + ". Stopped proccessing!!");
             return false;
         }
-        /*
-        worldManager.addWorld(
-                worldName,
-                World.Environment.NORMAL,
-                null,
-                WorldType.NORMAL,
-                true,
-                null
-        );*/
-        //Location spawnLoc = worldManager.getMVWorld(worldName).getSpawnLocation();
 
         Location spawnLoc = world.getSpawnLocation();
         for(Player p : Bukkit.getOnlinePlayers()) {

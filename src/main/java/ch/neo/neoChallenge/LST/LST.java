@@ -92,6 +92,7 @@ public class LST implements Listener {
             }
         }
     }
+    /*
     private void deletWorld(){
         new BukkitRunnable(){
 
@@ -100,6 +101,6 @@ public class LST implements Listener {
 
             }
         }.runTaskLater(Main.getInstance(), 20*50);
-    }
+    }*/
 }
 

@@ -1,7 +1,9 @@
 package ch.neo.neoChallenge.CMD;
 
+import ch.neo.neoChallenge.Main;
 import ch.neo.neoChallenge.SVC.ItemService;
 import ch.neo.neoChallenge.SVC.SimpleFile;
+import ch.neo.neoChallenge.SVC.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -14,34 +16,36 @@ public class settingsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
-        Player p =(Player)sender;
         if (command.getName().equalsIgnoreCase("settings"))
         {
+            Player p = (Player)sender;
+            openGui(p);
 
-        }if(args.length == 2)
+        } else if (command.getName().equalsIgnoreCase("timer"))
         {
-            String time = args[0];
-            if(time.equalsIgnoreCase("time")){
-                SimpleFile settingsFile = new SimpleFile("plugins//Nutils//time.yml");
-                String trialTime = args[1];
+            Timer timer = Main.getInstance().getTimer();
+            SimpleFile settingsFile = new SimpleFile("plugins//Nutils//time.yml");
+            Player p = (Player)sender;
+            settingsFile.of_getSetInt("time", 18000);
 
-                settingsFile.of_getSetInt("time", 18000);
+            settingsFile.of_save("settings");
+            if(args.length == 0){
+                p.sendMessage("§a§lTimer ist auf "+TimeFormatter.formatTime(timer.trialTime()));
+            }else{
+                String trialTime = args[0];
+                try{
+                    int finaltime = Integer.parseInt(trialTime);
+                    p.sendMessage("Zeit wurde auf "+TimeFormatter.formatTime(finaltime)+" gestellt");
+                    settingsFile.of_set("time", finaltime);
+                    settingsFile.of_save("timer command");
+                }catch (Exception e){
 
-                settingsFile.of_save("settings");
-                /*
-                if(settingsFile.of_fileExists()){
-
-
-                }else{
-                    p.sendMessage("§6lSettings File not found!");
-                    settingsFile.of_getSetInt("time", 18000);
-                }*/
+                }
             }
-    } else if (args.length == 0) {
-        openGui(p);
 
-    }
+        }
         return false;
+
     }
 
     private void openGui(Player p){
@@ -52,5 +56,22 @@ public class settingsCommand implements CommandExecutor {
         gui.setItem(13, ItemService.of_createItemStack(Material.CLOCK, "Timer settings", null, 1));
 
         p.openInventory(gui);
+    }
+
+    public class TimeFormatter {
+
+        public static String formatTime(long seconds) {
+            long hours = seconds / 3600;
+            long minutes = (seconds % 3600) / 60;
+            long secs = seconds % 60;
+
+            if (hours > 0) {
+                return String.format("%02d:%02d:%02d", hours, minutes, secs);
+            } else if (minutes > 0) {
+                return String.format("%02d:%02d", minutes, secs);
+            } else {
+                return String.format("%02d", secs);
+            }
+        }
     }
 }

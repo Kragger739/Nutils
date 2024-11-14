@@ -23,6 +23,7 @@ public final class Main extends JavaPlugin {
         // Plugin startup logic
         instance = this;
         getCommand("settings").setExecutor(new settingsCommand());
+        getCommand("timer").setExecutor(new settingsCommand());
         getServer().getPluginManager().registerEvents(new LST(), this);
 
         timer = new Timer(false, 0);
