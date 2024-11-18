@@ -22,8 +22,12 @@ public class WorldSVC
     public WorldSVC() { }
 
     public boolean generateNewWorldsAndDeleteTheOldOnes() {
+        SimpleFile currentWorlds = new SimpleFile("plugins//Nutils//worlds");
         Integer randomNumber = new Random().nextInt(99999999);
-        String worldName = "world" + randomNumber;
+        Integer finalrndmnum = randomNumber;
+        String worldName = "world" + finalrndmnum;
+        String worldName_N = "world_nether" + finalrndmnum;
+        String worldName_E = "world_end"+ finalrndmnum;
         worldsToDelete = Bukkit.getServer().getWorlds().toArray(new World[0]);
         World world = createNewWorldByName(worldName, World.Environment.NORMAL);
 
@@ -35,13 +39,22 @@ public class WorldSVC
         Location spawnLoc = world.getSpawnLocation();
         for(Player p : Bukkit.getOnlinePlayers()) {
             p.teleport(spawnLoc);
+            SimpleFile worldfile = new SimpleFile("plugins//Nutils//accounts//"+p.getUniqueId());
+            worldfile.of_setLocation("locO", spawnLoc);
+            worldfile.of_save("WorldSVC");
         }
 
-        createNewWorldByName(worldName + "_nether", World.Environment.NETHER);
-        createNewWorldByName(worldName + "_end", World.Environment.THE_END);
+        World newNether = createNewWorldByName(worldName_N, World.Environment.NETHER);
+        World newEnd = createNewWorldByName(worldName_E, World.Environment.THE_END);
+
+        Location nether = newNether.getSpawnLocation();
+        Location end = newEnd.getSpawnLocation();
+        currentWorlds.of_setLocation("nether", nether);
+        currentWorlds.of_setLocation("end", end);
+        currentWorlds.of_save("worldSVC");
 
         for(World currentWorld : worldsToDelete) {
-            deleteWorld(currentWorld);
+            //deleteWorld(currentWorld);
         }
 
         return true;
@@ -50,23 +63,30 @@ public class WorldSVC
     public World createNewWorldByName(String newWorldName, World.Environment envi) {
         WorldCreator worldCreator = new WorldCreator(newWorldName);
         worldCreator.environment(envi);
-        worldCreator.createWorld();
-        World newWorld = Bukkit.getWorld(newWorldName);
-
+        World newWorld = worldCreator.createWorld();
         if (newWorld == null) {
             System.out.println("Could not create the world. " + newWorldName);
             return null;
         }
+        newWorld.save();
 
         return newWorld;
     }
 
     public void deleteWorld(World world) {
         try {
-            Bukkit.unloadWorld(world.getName(), false);
+            if(world.getEnvironment().equals(World.Environment.NORMAL)){
+                return;
+            }else{
+                Bukkit.unloadWorld(world, false);
+            }
 
             for(World currentWorld : worldsToDelete) {
-                Bukkit.getWorlds().remove(currentWorld);
+                if(currentWorld.getEnvironment().equals(World.Environment.NORMAL)){
+                    return;
+                }else{
+                    Bukkit.getWorlds().remove(currentWorld);
+                }
             }
 
             File file = world.getWorldFolder();

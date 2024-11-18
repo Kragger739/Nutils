@@ -5,16 +5,21 @@ import ch.neo.neoChallenge.SVC.ItemService;
 import ch.neo.neoChallenge.SVC.SimpleFile;
 import ch.neo.neoChallenge.SVC.Timer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 import static ch.neo.neoChallenge.Main._WORLDSVC;
 import static ch.neo.neoChallenge.Main.plugin;
@@ -22,7 +27,9 @@ import static ch.neo.neoChallenge.Main.plugin;
 
 
 public class LST implements Listener {
-    private World[] worldsToDelete;
+
+    private final HashMap<UUID, Location> playerLocations = new HashMap<>();
+    //private World[] worldsToDelete;
     @EventHandler
     public void onClick(InventoryClickEvent e){
         Timer timer = Main.getInstance().getTimer();
@@ -36,9 +43,11 @@ public class LST implements Listener {
             ItemStack currentItem = e.getCurrentItem();
             if (currentItem != null && currentItem.getType() == Material.RED_STAINED_GLASS_PANE)
             {
-                worldsToDelete = Bukkit.getServer().getWorlds().toArray(new World[0]);
+                //kickAllPlayers("world reset");
+                //worldsToDelete = Bukkit.getServer().getWorlds().toArray(new World[0]);
 
                 boolean newWorldsCreated = _WORLDSVC.generateNewWorldsAndDeleteTheOldOnes();
+                timer.setTime(0);
 
                 if(!newWorldsCreated) {
                     p.sendMessage("§cKonnte keine neue Welt erstellten!");
@@ -69,6 +78,64 @@ public class LST implements Listener {
                 timer.setRunning(true);
 
             }
+        }
+    }
+    @EventHandler
+    public void onPlayerPortal(PlayerPortalEvent event) {
+        SimpleFile currentWorlds = new SimpleFile("plugins//Nutils//worlds");
+        Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
+
+        if(event.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL){
+        // Check if the player already has a stored location
+        if (playerLocations.containsKey(playerUUID)) {
+            // Teleport the player to the stored location
+            Location savedLocation = playerLocations.get(playerUUID);
+            Location loc = new Location(savedLocation.getWorld(), savedLocation.getX(), savedLocation.getY(), savedLocation.getZ());
+            player.teleport(loc);
+            //player.sendMessage("You have been teleported back to your last saved location!");
+            event.setCancelled(true);
+            playerLocations.remove(playerUUID);
+        } else {
+            // Save the player's current location
+            Location currentLocation = player.getLocation();
+            playerLocations.put(playerUUID, currentLocation);
+            player.teleport(currentWorlds.of_getLocationByKey("nether").add(currentLocation.getX()/8, currentLocation.getY(), currentLocation.getZ()/8));
+            //player.sendMessage("Your location has been saved! Use the portal again to return here.");
+            event.setCancelled(true);
+        }} else if (event.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
+            player.teleport(currentWorlds.of_getLocationByKey("end"));
+        }
+    }
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e){
+        Player p = e.getPlayer();
+        SimpleFile worldfile = new SimpleFile("plugins//Nutils//accounts//"+p.getUniqueId());
+        Location loc = worldfile.of_getLocationByKey("locO");
+        if(worldfile == null){
+            return;
+        }else{
+            p.teleport(loc);
+        }
+    }
+    @EventHandler
+    public void onleave(PlayerQuitEvent e){
+        Player p = e.getPlayer();
+        SimpleFile worldfile = new SimpleFile("plugins//Nutils//accounts//"+p.getUniqueId());
+        Location quitloc = p.getLocation();
+        worldfile.of_setLocation("locO", quitloc);
+        worldfile.of_save("QuitEvent");
+    }
+    @EventHandler
+    public void onDeath(PlayerRespawnEvent e){
+        Player p = e.getPlayer();
+        SimpleFile worldfile = new SimpleFile("plugins//Nutils//accounts//"+p.getUniqueId());
+        Location loc = worldfile.of_getLocationByKey("locO");
+
+        if(e.isBedSpawn() == true){
+            return;
+        }else{
+            e.setRespawnLocation(loc);
         }
     }
     public void kickAllPlayers(String kickMessage) {
